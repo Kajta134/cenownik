@@ -49,6 +49,6 @@ export class UserController {
     if (request.user.email !== email && request.user.role !== Role.ADMIN) {
       throw new UnauthorizedException('You can only update your own data');
     }
-    return this.userService.updateUserData(email, updateRequest.name);
+    return this.userService.updateUserData(email, updateRequest);
   }
 }

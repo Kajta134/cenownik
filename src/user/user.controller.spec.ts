@@ -29,7 +29,7 @@ describe('UserController', () => {
     } as UserUpdateResponseDto);
     expect(userService.updateUserData as jest.Mock).toHaveBeenCalledWith(
       'user@example.com',
-      'New Name',
+      { name: 'New Name' } as UserUpdateResponseDto,
     );
     expect(result).toEqual({});
   });
@@ -44,7 +44,7 @@ describe('UserController', () => {
     } as UserUpdateResponseDto);
     expect(userService.updateUserData as jest.Mock).toHaveBeenCalledWith(
       'user@example.com',
-      'Another Name',
+      { name: 'Another Name' } as UserUpdateResponseDto,
     );
     expect(result).toEqual({ updated: true });
   });

@@ -4,6 +4,7 @@ import { User } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { UserMetadata, userToMetadata } from './dto/user-metadata.js';
 import { UserUpdateResponseDto } from './dto/user-update-response.dto.js';
+import { UserUpdateDto } from './dto/update-user.dto.js';
 
 @Injectable()
 export class UserService {
@@ -23,14 +24,20 @@ export class UserService {
 
   async updateUserData(
     email: string,
-    newName: string | null | undefined,
+    updateRequest: UserUpdateDto,
   ): Promise<UserUpdateResponseDto> {
     const user = await this.findByIdOrFail(email);
     if (user === null) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
-    if (newName !== undefined && newName !== null) {
-      user.name = newName;
+    if (updateRequest.name !== undefined && updateRequest.name !== null) {
+      user.name = updateRequest.name;
+    }
+    if (
+      updateRequest.scraperFrequency !== undefined &&
+      updateRequest.scraperFrequency !== null
+    ) {
+      user.scraperFrequency = updateRequest.scraperFrequency;
     }
 
     return await this.mergeUser(user);

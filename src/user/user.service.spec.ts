@@ -6,6 +6,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { Role } from '../generated/prisma/enums.js';
 import { userToMetadata } from './dto/user-metadata.js';
 import { User } from 'src/generated/prisma/client.js';
+import { UserUpdateDto } from './dto/update-user.dto.js';
 
 describe('UserService', () => {
   let service: UserService;
@@ -15,6 +16,7 @@ describe('UserService', () => {
     email: 'test@example.com',
     name: 'Test User',
     password: 'hashedPassword',
+    scraperFrequency: 60,
     role: Role.USER,
     isActive: true,
   } as User;
@@ -73,7 +75,10 @@ describe('UserService', () => {
       prisma.user.findUnique.mockResolvedValue(mockUser);
       prisma.user.update.mockResolvedValue(updatedUser);
 
-      const result = await service.updateUserData(mockUser.email, 'New Name');
+      const result = await service.updateUserData(mockUser.email, {
+        name: 'New Name',
+        scraperFrequency: 60,
+      } as UserUpdateDto);
       expect(result).toEqual(updatedUser);
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { email: mockUser.email },
@@ -88,7 +93,9 @@ describe('UserService', () => {
     it('should throw NotFoundException if user not found', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       await expect(
-        service.updateUserData(mockUser.email, 'New Name'),
+        service.updateUserData(mockUser.email, {
+          name: 'New Name',
+        } as UserUpdateDto),
       ).rejects.toThrow(NotFoundException);
     });
 
@@ -96,8 +103,13 @@ describe('UserService', () => {
       prisma.user.findUnique.mockResolvedValue(mockUser);
       prisma.user.update.mockResolvedValue(mockUser);
 
-      const result1 = await service.updateUserData(mockUser.email, null);
-      const result2 = await service.updateUserData(mockUser.email, undefined);
+      const result1 = await service.updateUserData(mockUser.email, {
+        name: null,
+      } as UserUpdateDto);
+      const result2 = await service.updateUserData(
+        mockUser.email,
+        {} as UserUpdateDto,
+      );
 
       expect(result1.name).toEqual(mockUser.name);
       expect(result2.name).toEqual(mockUser.name);
