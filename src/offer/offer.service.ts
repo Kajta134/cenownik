@@ -3,24 +3,27 @@ import { Offer } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
-import { scrapeAmazon } from '../scrapers/amazon.scrapper.js';
 import { OfferResponseDto } from './dto/offer-response.dto.js';
+import { ScrapperService } from 'src/scrapers/scraper.service.js';
 
 @Injectable()
 export class OfferService {
-  constructor(private database: PrismaService) {}
+  constructor(
+    private database: PrismaService,
+    private scraperService: ScrapperService,
+  ) {}
   async create(
     createOfferDto: CreateOfferDto,
     userEmail: string,
   ): Promise<OfferResponseDto> {
-    const currentPrise = await scrapeAmazon(createOfferDto.link).catch(
-      (error) => {
+    const currentPrise = await this.scraperService
+      .scrapePrice(createOfferDto.link)
+      .catch((error) => {
         console.error(
           `Błąd podczas skrapowania ceny dla linku ${createOfferDto.link}:`,
           error,
         );
-      },
-    );
+      });
     const user = await this.database.user.findUnique({
       where: { email: userEmail },
     });
