@@ -29,6 +29,7 @@ describe('OfferService', () => {
     name: 'Test User',
     email: 'user@example.com',
     password: 'password',
+    scraperFrequency: 60,
     role: Role.USER,
     isActive: true,
     createdAt: new Date(),

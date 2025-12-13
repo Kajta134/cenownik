@@ -6,7 +6,12 @@ export class MailController {
   constructor(private readonly mailService: MailService) {}
   @Post('send-mail')
   async sendMail() {
-    await this.mailService.sendTestMail('kajtakamil1@gmail.com');
+    await this.mailService.sendMail(
+      'kajtakamil1@gmail.com',
+      'Test maila',
+      'To jest testowy email',
+      '<b>To jest testowy email</b>',
+    );
     return { success: true };
   }
 }
