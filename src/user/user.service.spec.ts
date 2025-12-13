@@ -84,6 +84,7 @@ describe('UserService', () => {
         where: { email: mockUser.email },
         data: {
           name: 'New Name',
+          scraperFrequency: 60,
           password: mockUser.password,
           role: mockUser.role,
         },

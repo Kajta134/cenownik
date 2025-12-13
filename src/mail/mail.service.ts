@@ -31,4 +31,21 @@ export class MailService {
       throw new InternalServerErrorException('Nie udało się wysłać maila');
     }
   }
+
+  async sendOfferPriceAlertEmail(
+    to: string,
+    offerLink: string,
+    currentPrice: number,
+    priceThreshold: number,
+  ) {
+    const subject = 'Alert cenowy oferty';
+    const text = `Cena oferty pod linkiem ${offerLink} spadła ponizej wyznaczoej przez Ciebie wartości:${priceThreshold}. Teraz wynosi ${currentPrice}. Sprawdź ją teraz!`;
+    await this.sendMail(to, subject, text);
+  }
+
+  async sendOfferRemovedEmail(to: string, offerLink: string) {
+    const subject = 'Oferta usunięta';
+    const text = `Twoja oferta pod linkiem ${offerLink} została usunięta, ponieważ nie jest już dostępna.`;
+    await this.sendMail(to, subject, text);
+  }
 }

@@ -4,8 +4,16 @@ import { AuthModule } from './auth/auth.module.js';
 import { OfferModule } from './offer/offer.module.js';
 import { ScraperModule } from './scrapers/scraper.module.js';
 import { MailModule } from './mail/mail.module.js';
+import { SchedulerModule } from './schedlulers/scheduler.module.js';
 
 @Module({
-  imports: [UserModule, AuthModule, OfferModule, ScraperModule, MailModule],
+  imports: [
+    UserModule,
+    AuthModule,
+    OfferModule,
+    ScraperModule,
+    MailModule,
+    SchedulerModule,
+  ],
 })
 export class AppModule {}

@@ -48,6 +48,7 @@ export class UserService {
       where: { email: user.email },
       data: {
         name: user.name,
+        scraperFrequency: user.scraperFrequency,
         password: user.password,
         role: user.role,
       },
