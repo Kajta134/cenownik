@@ -5,7 +5,10 @@ import { OfferController } from './offer.controller.js';
 import { OfferService } from './offer.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
-import { Offer } from 'src/generated/prisma/client.js';
+import { Offer, Role } from '../generated/prisma/client.js';
+import { UserMetadata } from '../user/dto/user-metadata.js';
+import { AuthGuard } from '../auth/auth.guard.js';
+import { AuthService } from '../auth/auth.service.js';
 
 describe('OfferController', () => {
   let controller: OfferController;
@@ -35,6 +38,16 @@ describe('OfferController', () => {
             remove: jest.fn(),
           },
         },
+        {
+          provide: AuthGuard,
+          useValue: {
+            canActivate: jest.fn().mockReturnValue(true),
+          },
+        },
+        {
+          provide: AuthService,
+          useValue: {},
+        },
       ],
     }).compile();
 
@@ -46,15 +59,30 @@ describe('OfferController', () => {
     const dto: CreateOfferDto = {
       name: 'Test',
       link: 'http://example.com',
-      userId: 1,
       priceFreshold: 50,
     };
-    service.create.mockResolvedValue(mockOffer);
+    service.create.mockResolvedValue({
+      name: dto.name,
+      link: dto.link,
+      priceFreshold: dto.priceFreshold,
+      currentPrice: 45,
+    });
+    const userEmail = 'user@example.com';
 
-    const result = await controller.create(dto);
+    const result = await controller.create(
+      {
+        user: { email: userEmail, role: Role.USER } as UserMetadata,
+      },
+      dto,
+    );
 
-    expect(service.create).toHaveBeenCalledWith(dto);
-    expect(result).toEqual(mockOffer);
+    expect(service.create).toHaveBeenCalledWith(dto, userEmail);
+    expect(result).toEqual({
+      name: dto.name,
+      link: dto.link,
+      priceFreshold: dto.priceFreshold,
+      currentPrice: 45,
+    });
   });
 
   it('should return all offers', async () => {

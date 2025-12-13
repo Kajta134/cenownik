@@ -2,7 +2,7 @@ import { IsNumber, IsString } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateOfferDto {
+export class OfferResponseDto {
   @ApiProperty()
   @IsString()
   name: string;
@@ -14,4 +14,8 @@ export class CreateOfferDto {
   @ApiProperty()
   @IsNumber()
   priceFreshold: number;
+
+  @ApiProperty()
+  @IsNumber()
+  currentPrice: number;
 }

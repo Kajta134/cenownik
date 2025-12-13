@@ -7,20 +7,34 @@ import {
   Param,
   Patch,
   Post,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { OfferService } from './offer.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
-import { Offer } from 'src/generated/prisma/client.js';
+import { Offer } from '../generated/prisma/client.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard.js';
+import { UserMetadata } from '../user/dto/user-metadata.js';
+import { OfferResponseDto } from './dto/offer-response.dto.js';
 
 @Controller('offer')
 export class OfferController {
   constructor(private readonly offerService: OfferService) {}
 
   @Post()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @HttpCode(201)
-  async create(@Body() createOfferDto: CreateOfferDto): Promise<Offer> {
-    return this.offerService.create(createOfferDto);
+  async create(
+    @Request()
+    request: {
+      user: UserMetadata;
+    },
+    @Body() createOfferDto: CreateOfferDto,
+  ): Promise<OfferResponseDto> {
+    return this.offerService.create(createOfferDto, request.user.email);
   }
 
   @Get()

@@ -37,10 +37,11 @@ describe('OfferService', () => {
 
   describe('create', () => {
     it('creates offer when user exists', async () => {
+      const userEmail = 'user@example.com';
       prisma.user.findUnique.mockResolvedValue({
         id: 1,
         name: 'Test User',
-        email: 'user@example.com',
+        email: userEmail,
         password: 'password',
         role: Role.USER,
         isActive: true,
@@ -54,12 +55,13 @@ describe('OfferService', () => {
         name: sampleOffer.name,
         link: sampleOffer.link,
         priceFreshold: sampleOffer.priceFreshold,
-        userId: sampleOffer.userId,
       };
 
-      await expect(service.create(dto)).resolves.toEqual(sampleOffer);
+      await expect(service.create(dto, userEmail)).resolves.toEqual(
+        sampleOffer,
+      );
       expect(prisma.user.findUnique).toHaveBeenCalledWith({
-        where: { id: dto.userId },
+        where: { email: userEmail },
       });
       expect(prisma.offer.create).toHaveBeenCalled();
     });
@@ -71,12 +73,11 @@ describe('OfferService', () => {
         name: 'N',
         link: 'L',
         priceFreshold: 10,
-        userId: 999,
       };
 
-      await expect(service.create(dto)).rejects.toBeInstanceOf(
-        NotFoundException,
-      );
+      await expect(
+        service.create(dto, 'nonexistent@example.com'),
+      ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
@@ -116,7 +117,6 @@ describe('OfferService', () => {
         name: 'Updated',
         link: 'http://new',
         priceFreshold: 50,
-        userId: 2,
       };
 
       await expect(service.update(1, dto)).resolves.toEqual(sampleOffer);
@@ -126,7 +126,6 @@ describe('OfferService', () => {
           name: dto.name,
           link: dto.link,
           priceFreshold: dto.priceFreshold,
-          userId: dto.userId,
         },
       });
     });

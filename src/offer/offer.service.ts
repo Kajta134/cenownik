@@ -1,33 +1,48 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Offer } from 'src/generated/prisma/client.js';
+import { Offer } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
+import { scrapeAmazon } from '../scrapers/amazon.scrapper.js';
+import { OfferResponseDto } from './dto/offer-response.dto.js';
 
 @Injectable()
 export class OfferService {
   constructor(private database: PrismaService) {}
-  async create(createOfferDto: CreateOfferDto): Promise<Offer> {
-    await this.database.user
-      .findUnique({
-        where: { id: createOfferDto.userId },
-      })
-      .then((user) => {
-        if (user === null) {
-          throw new NotFoundException(
-            `User with id ${createOfferDto.userId.toString()} not found`,
-          );
-        }
-      });
+  async create(
+    createOfferDto: CreateOfferDto,
+    userEmail: string,
+  ): Promise<OfferResponseDto> {
+    const currentPrise = await scrapeAmazon(createOfferDto.link).catch(
+      (error) => {
+        console.error(
+          `Błąd podczas skrapowania ceny dla linku ${createOfferDto.link}:`,
+          error,
+        );
+      },
+    );
+    const user = await this.database.user.findUnique({
+      where: { email: userEmail },
+    });
 
-    return this.database.offer.create({
+    if (user === null) {
+      throw new NotFoundException(`User with email ${userEmail} not found`);
+    }
+
+    const offer = await this.database.offer.create({
       data: {
         name: createOfferDto.name,
         link: createOfferDto.link,
         priceFreshold: createOfferDto.priceFreshold,
-        userId: createOfferDto.userId,
+        userId: user.id,
       },
     });
+    return {
+      name: offer.name,
+      link: offer.link,
+      priceFreshold: offer.priceFreshold,
+      currentPrice: currentPrise ?? 0,
+    };
   }
 
   async findAll(): Promise<Offer[]> {
@@ -52,7 +67,6 @@ export class OfferService {
           name: updateOfferDto.name,
           link: updateOfferDto.link,
           priceFreshold: updateOfferDto.priceFreshold,
-          userId: updateOfferDto.userId,
         },
       })
       .catch(() => {

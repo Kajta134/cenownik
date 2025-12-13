@@ -1,47 +1,64 @@
 import { chromium } from 'playwright';
 
-export async function scrapeAmazon(url) {
+export async function scrapeAmazon(url: string): Promise<number> {
   const browser = await chromium.launch({ headless: true });
+
   const context = await browser.newContext({
     userAgent:
       'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
-    locale: 'en-US', // Amazon PL działa lepiej z angielskim locale
+    locale: 'en-US',
   });
 
   const page = await context.newPage();
 
   await page.goto(url, {
     waitUntil: 'networkidle',
-    timeout: 40000,
+    timeout: 45000,
   });
 
+  await page
+    .waitForSelector('.a-price .a-offscreen', { timeout: 10000 })
+    .catch(() => {});
+
   const selectors = [
+    '.a-price .a-offscreen',
     '#priceblock_ourprice',
     '#priceblock_dealprice',
-    '.a-price .a-offscreen',
     '#price_inside_buybox',
+    '#corePriceDisplay_desktop_feature_div > div.a-section.a-spacing-none.aok-align-center.aok-relative > span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay > span:nth-child(2) > span.a-price-whole',
+    '#corePriceDisplay_desktop_feature_div > div.a-section.a-spacing-none.aok-align-center.aok-relative > span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay > span:nth-child(2) > span.a-price-whole',
   ];
 
-  let priceText = null;
+  let priceText: string | null = null;
 
-  for (const sel of selectors) {
+  for (const selector of selectors) {
     try {
-      const el = await page.$(sel);
-      if (el) {
-        priceText = await el.innerText();
+      const element = await page.$(selector);
+      if (element) {
+        priceText = await element.innerText();
         break;
       }
-    } catch {}
+    } catch (e: any) {
+      console.error(
+        `Błąd podczas próby pobrania ceny z selektora ${selector}:`,
+        e,
+      );
+    }
   }
 
   await browser.close();
 
   if (!priceText) {
-    throw new Error('Nie znaleziono ceny — Amazon mógł zablokować scraper.');
+    throw new Error('Nie znaleziono ceny — Amazon mógł zmienić strukturę.');
   }
 
-  // Zamiana , i . oraz usuwanie waluty
-  const price = parseFloat(priceText.replace(/[^\d.,]/g, '').replace(',', '.'));
+  const numeric = parseFloat(
+    priceText.replace(/[^\d.,]/g, '').replace(',', '.'),
+  );
 
-  return price;
+  if (isNaN(numeric)) {
+    throw new Error('Nie udało się przekonwertować ceny.');
+  }
+
+  return numeric;
 }
