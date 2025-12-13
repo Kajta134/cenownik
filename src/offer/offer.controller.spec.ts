@@ -24,6 +24,13 @@ describe('OfferController', () => {
     updatedAt: new Date(),
   };
 
+  const mockUser: UserMetadata = {
+    email: 'user@example.com',
+    role: Role.ADMIN,
+  };
+
+  const mockCurrentPrice = 45;
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [OfferController],
@@ -33,6 +40,7 @@ describe('OfferController', () => {
           useValue: {
             create: jest.fn(),
             findAll: jest.fn(),
+            findByUserEmail: jest.fn(),
             findOne: jest.fn(),
             update: jest.fn(),
             remove: jest.fn(),
@@ -62,63 +70,121 @@ describe('OfferController', () => {
       priceFreshold: 50,
     };
     service.create.mockResolvedValue({
+      id: 1,
       name: dto.name,
       link: dto.link,
       priceFreshold: dto.priceFreshold,
-      currentPrice: 45,
+      currentPrice: mockCurrentPrice,
     });
-    const userEmail = 'user@example.com';
 
     const result = await controller.create(
       {
-        user: { email: userEmail, role: Role.USER } as UserMetadata,
+        user: mockUser,
       },
       dto,
     );
 
-    expect(service.create).toHaveBeenCalledWith(dto, userEmail);
+    expect(service.create).toHaveBeenCalledWith(dto, mockUser.email);
     expect(result).toEqual({
+      id: 1,
       name: dto.name,
       link: dto.link,
       priceFreshold: dto.priceFreshold,
-      currentPrice: 45,
+      currentPrice: mockCurrentPrice,
     });
   });
 
   it('should return all offers', async () => {
-    service.findAll.mockResolvedValue([mockOffer]);
+    service.findAll.mockResolvedValue([
+      {
+        id: mockOffer.id,
+        name: mockOffer.name,
+        link: mockOffer.link,
+        priceFreshold: mockOffer.priceFreshold,
+        currentPrice: mockCurrentPrice,
+      },
+    ]);
 
-    const result = await controller.findAll();
-
+    service.findByUserEmail.mockResolvedValue([
+      {
+        id: mockOffer.id,
+        name: mockOffer.name,
+        link: mockOffer.link,
+        priceFreshold: mockOffer.priceFreshold,
+        currentPrice: mockCurrentPrice,
+      },
+    ]);
+    const result = await controller.findAll({
+      user: mockUser,
+    });
     expect(service.findAll).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([mockOffer]);
+    expect(result).toEqual([
+      {
+        id: mockOffer.id,
+        name: mockOffer.name,
+        link: mockOffer.link,
+        priceFreshold: mockOffer.priceFreshold,
+        currentPrice: mockCurrentPrice,
+      },
+    ]);
   });
 
   it('should return one offer by id', async () => {
-    service.findOne.mockResolvedValue(mockOffer);
+    service.findOne.mockResolvedValue({
+      id: mockOffer.id,
+      name: mockOffer.name,
+      link: mockOffer.link,
+      priceFreshold: mockOffer.priceFreshold,
+      currentPrice: mockCurrentPrice,
+    });
 
-    const result = await controller.findOne('1');
+    const result = await controller.findOne('1', {
+      user: mockUser,
+    });
 
-    expect(service.findOne).toHaveBeenCalledWith(1);
-    expect(result).toEqual(mockOffer);
+    expect(service.findOne).toHaveBeenCalledWith(
+      1,
+      mockUser.email,
+      mockUser.role,
+    );
+    expect(result).toEqual({
+      id: mockOffer.id,
+      name: mockOffer.name,
+      link: mockOffer.link,
+      priceFreshold: mockOffer.priceFreshold,
+      currentPrice: mockCurrentPrice,
+    });
   });
 
   it('should update an offer', async () => {
     const dto: UpdateOfferDto = { name: 'Updated' };
     service.update.mockResolvedValue({ ...mockOffer, ...dto });
 
-    const result = await controller.update('1', dto);
+    const result = await controller.update('1', dto, {
+      user: mockUser,
+    });
 
-    expect(service.update).toHaveBeenCalledWith(1, dto);
+    expect(service.update).toHaveBeenCalledWith(
+      1,
+      dto,
+      mockUser.email,
+      mockUser.role,
+    );
     expect(result).toEqual({ ...mockOffer, ...dto });
   });
 
   it('should remove an offer', async () => {
     service.remove.mockResolvedValue(mockOffer);
 
-    const result = await controller.remove('1');
+    const result = await controller.remove('1', {
+      user: mockUser,
+    });
 
-    expect(service.remove).toHaveBeenCalledWith(1);
+    expect(service.remove).toHaveBeenCalledWith(
+      1,
+      mockUser.email,
+      mockUser.role,
+    );
     expect(result).toEqual(mockOffer);
   });
 });

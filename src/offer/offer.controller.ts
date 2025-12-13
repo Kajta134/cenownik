@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { OfferService } from './offer.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
-import { Offer } from '../generated/prisma/client.js';
+import { Offer, Role } from '../generated/prisma/client.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard.js';
@@ -38,29 +38,59 @@ export class OfferController {
   }
 
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @HttpCode(200)
-  async findAll(): Promise<Offer[]> {
-    return this.offerService.findAll();
+  async findAll(
+    @Request() request: { user: UserMetadata },
+  ): Promise<OfferResponseDto[]> {
+    if (request.user.role === Role.ADMIN) {
+      return this.offerService.findAll();
+    } else {
+      return this.offerService.findByUserEmail(request.user.email);
+    }
   }
 
   @Get(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @HttpCode(200)
-  async findOne(@Param('id') id: string): Promise<Offer> {
-    return this.offerService.findOne(+id);
+  async findOne(
+    @Param('id') id: string,
+    @Request() request: { user: UserMetadata },
+  ): Promise<OfferResponseDto> {
+    return this.offerService.findOne(
+      +id,
+      request.user.email,
+      request.user.role,
+    );
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @HttpCode(200)
   async update(
     @Param('id') id: string,
     @Body() updateOfferDto: UpdateOfferDto,
+    @Request() request: { user: UserMetadata },
   ): Promise<Offer> {
-    return this.offerService.update(+id, updateOfferDto);
+    return this.offerService.update(
+      +id,
+      updateOfferDto,
+      request.user.email,
+      request.user.role,
+    );
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard)
   @HttpCode(200)
-  async remove(@Param('id') id: string): Promise<Offer> {
-    return this.offerService.remove(+id);
+  async remove(
+    @Param('id') id: string,
+    @Request() request: { user: UserMetadata },
+  ): Promise<Offer> {
+    return this.offerService.remove(+id, request.user.email, request.user.role);
   }
 }

@@ -5,6 +5,10 @@ import { ApiProperty } from '@nestjs/swagger';
 export class OfferResponseDto {
   @ApiProperty()
   @IsString()
+  id: number;
+
+  @ApiProperty()
+  @IsString()
   name: string;
 
   @ApiProperty()
