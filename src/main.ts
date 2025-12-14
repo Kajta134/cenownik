@@ -13,8 +13,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Starting Setup')
-    .setDescription('API for Starting Setup application')
+    .setTitle('Cenownik API')
+    .setDescription('API for Cenownik application')
     .setVersion('1.0')
     .addTag('API')
     .addBearerAuth()
