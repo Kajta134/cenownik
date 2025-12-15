@@ -14,7 +14,7 @@ import { OfferService } from './offer.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { Offer, Role } from '../generated/prisma/client.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard.js';
 import { UserMetadata } from '../user/dto/user-metadata.js';
 import { OfferResponseDto } from './dto/offer-response.dto.js';
@@ -24,6 +24,13 @@ export class OfferController {
   constructor(private readonly offerService: OfferService) {}
 
   @Post()
+  @ApiResponse({
+    status: 201,
+    description: 'The offer has been successfully created.',
+    type: OfferResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @HttpCode(201)
@@ -38,6 +45,12 @@ export class OfferController {
   }
 
   @Get()
+  @ApiResponse({
+    status: 200,
+    description: 'The offers have been successfully retrieved.',
+    type: [OfferResponseDto],
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @HttpCode(200)
@@ -52,6 +65,13 @@ export class OfferController {
   }
 
   @Get(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'The offer has been successfully retrieved.',
+    type: OfferResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @HttpCode(200)
@@ -67,6 +87,12 @@ export class OfferController {
   }
 
   @Patch(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'The offer has been successfully updated.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @HttpCode(200)
@@ -84,6 +110,12 @@ export class OfferController {
   }
 
   @Delete(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'The offer has been successfully deleted.',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Not Found' })
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @HttpCode(200)
