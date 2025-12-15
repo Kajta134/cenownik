@@ -41,7 +41,6 @@ export async function scrapeMediaExpert(url: string): Promise<number> {
     throw new Error('Nie znaleziono Spark ID na stronie produktu.');
   }
   await browser.close();
-  console.log('Spark ID:', sparkId);
 
   const jsonUrl = `https://www.mediaexpert.pl/spark-state/${sparkId}`;
   const jsonResult = await fetch(jsonUrl, {

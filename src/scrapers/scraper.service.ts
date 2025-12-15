@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { scrapeAmazon } from './amazon.scraper.js';
 import { scrapeOlx } from './olx.scraper.js';
 import { scrapeMediaExpert } from './media-expert.scraper.js';
+import { scrapeXkom } from './xkom.scraper.js';
 
 @Injectable()
 export class ScrapperService {
@@ -16,6 +17,8 @@ export class ScrapperService {
         return await scrapeOlx(link);
       case link.includes('mediaexpert'):
         return await scrapeMediaExpert(link);
+      case link.includes('x-kom.pl'):
+        return await scrapeXkom(link);
       default:
         throw new Error('No scraper available for the provided link');
     }
