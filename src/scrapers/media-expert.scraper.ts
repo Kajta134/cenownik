@@ -1,6 +1,26 @@
 import fetch from 'node-fetch';
 import { chromium } from 'playwright';
 
+type MediaExpertProductState = {
+  ['Product:ProductShowService.state']?: {
+    offer?: {
+      flags?: {
+        price_with_code?: boolean;
+      };
+      promotionPricesSalesChannel?: {
+        app?: {
+          _for_action_price?: {
+            code_price?: {
+              amount?: string;
+            };
+          };
+        };
+      };
+      price_gross?: string;
+    };
+  };
+};
+
 export async function scrapeMediaExpert(url: string): Promise<number> {
   const browser = await chromium.launch({
     headless: true,
@@ -37,17 +57,21 @@ export async function scrapeMediaExpert(url: string): Promise<number> {
     );
   }
 
-  const jsonData: any = await jsonResult.json();
+  const buffer = await jsonResult.arrayBuffer();
+  const text = new TextDecoder('utf-8').decode(buffer);
+  const jsonData: MediaExpertProductState = JSON.parse(
+    text,
+  ) as MediaExpertProductState;
 
   const priceWithCode: boolean =
     jsonData['Product:ProductShowService.state']?.offer?.flags
       ?.price_with_code ?? false;
 
-  let priceString: string;
+  let priceString: string | undefined;
   if (priceWithCode) {
     priceString =
       jsonData['Product:ProductShowService.state']?.offer
-        ?.promotionPricesSalesChannel?.app?._for_action_price.code_price
+        ?.promotionPricesSalesChannel?.app?._for_action_price?.code_price
         ?.amount;
   } else {
     priceString =
