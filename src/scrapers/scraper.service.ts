@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { scrapeAmazon } from './amazon.scraper.js';
 import { scrapeOlx } from './olx.scraper.js';
+import { scrapeMediaExpert } from './media-expert.scraper.js';
 
 @Injectable()
 export class ScrapperService {
@@ -13,6 +14,8 @@ export class ScrapperService {
         return await scrapeAmazon(link);
       case link.includes('olx'):
         return await scrapeOlx(link);
+      case link.includes('mediaexpert'):
+        return await scrapeMediaExpert(link);
       default:
         throw new Error('No scraper available for the provided link');
     }
