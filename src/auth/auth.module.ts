@@ -6,6 +6,7 @@ import { AuthController } from './auth.controller.js';
 import { AuthService } from './auth.service.js';
 import { RoleGuard } from './roles/role.guard.js';
 import { UserModule } from '../user/user.module.js';
+import { DiscordModule } from '../discord/discord.module.js';
 
 @Module({
   controllers: [AuthController],
@@ -16,6 +17,7 @@ import { UserModule } from '../user/user.module.js';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '30m' },
     }),
+    DiscordModule,
   ],
   exports: [AuthService, RoleGuard, JwtModule],
 })

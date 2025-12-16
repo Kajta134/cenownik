@@ -5,10 +5,14 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { UserMetadata, userToMetadata } from './dto/user-metadata.js';
 import { UserUpdateResponseDto } from './dto/user-update-response.dto.js';
 import { UserUpdateDto } from './dto/update-user.dto.js';
+import { DiscordService } from '../discord/discord.service.js';
 
 @Injectable()
 export class UserService {
-  constructor(private databaseService: PrismaService) {}
+  constructor(
+    private databaseService: PrismaService,
+    private readonly discordService: DiscordService,
+  ) {}
 
   async findOne(email: string): Promise<User | null> {
     return this.databaseService.user.findUnique({ where: { email } });
@@ -30,29 +34,25 @@ export class UserService {
     if (user === null) {
       throw new NotFoundException(`User with email ${email} not found`);
     }
-    if (updateRequest.name !== undefined && updateRequest.name !== null) {
-      user.name = updateRequest.name;
-    }
-    if (
-      updateRequest.scraperFrequency !== undefined &&
-      updateRequest.scraperFrequency !== null
-    ) {
-      user.scraperFrequency = updateRequest.scraperFrequency;
-    }
+    const discordActivationLink = user.discordId
+      ? this.discordService.sendDiscordActivationLink()
+      : null;
 
-    return await this.mergeUser(user);
-  }
-
-  private async mergeUser(user: User): Promise<User> {
-    return await this.databaseService.user.update({
-      where: { email: user.email },
+    const updatedUser = await this.databaseService.user.update({
+      where: { email },
       data: {
-        name: user.name,
-        scraperFrequency: user.scraperFrequency,
-        password: user.password,
-        role: user.role,
+        name: updateRequest.name ?? user.name,
+        scraperFrequency:
+          updateRequest.scraperFrequency ?? user.scraperFrequency,
+        discordId: updateRequest.discordId ?? user.discordId,
       },
     });
+    return {
+      name: updatedUser.name,
+      scraperFrequency: updatedUser.scraperFrequency,
+      discordId: updatedUser.discordId ?? null,
+      discordActivationLink,
+    };
   }
 
   private async findByIdOrFail(email: string): Promise<User | null> {
@@ -69,12 +69,14 @@ export class UserService {
     email: string,
     password: string,
     name: string,
+    discordId?: string,
   ): Promise<User> {
     return this.databaseService.user.create({
       data: {
         email,
         password,
         name,
+        discordId,
         isActive: true,
       },
     });

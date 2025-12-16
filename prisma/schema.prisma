@@ -21,6 +21,7 @@ model User {
   scraperFrequency Int @default(60) // in minutes
   role Role @default(USER)
   offers     Offer[]
+  discordId  String? 
 
   isActive Boolean @default(false)
 }

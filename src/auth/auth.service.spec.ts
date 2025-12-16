@@ -6,11 +6,13 @@ import { JwtService } from '@nestjs/jwt';
 import { Role } from '../generated/prisma/enums.js';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { User } from '../generated/prisma/client.js';
+import { DiscordService } from 'src/discord/discord.service.js';
 
 describe('AuthService', () => {
   let authService: AuthService;
   let userService: jest.Mocked<UserService>;
   let jwtService: jest.Mocked<JwtService>;
+  let discordService: jest.Mocked<DiscordService>;
 
   beforeEach(() => {
     userService = {
@@ -23,9 +25,14 @@ describe('AuthService', () => {
       sign: jest.fn(),
     } as unknown as jest.Mocked<JwtService>;
 
+    discordService = {
+      sendDiscordActivationLink: jest.fn(),
+    } as unknown as jest.Mocked<DiscordService>;
+
     authService = new AuthService(
       userService as unknown as UserService,
       jwtService as unknown as JwtService,
+      discordService as unknown as DiscordService,
     );
   });
 
@@ -121,6 +128,7 @@ describe('AuthService', () => {
         'new@example.com',
         'pass',
         'Name',
+        'discord-id',
       );
 
       expect(userService.findOne).toHaveBeenCalledWith('new@example.com');
@@ -128,6 +136,7 @@ describe('AuthService', () => {
         'new@example.com',
         'pass',
         'Name',
+        'discord-id',
       );
       expect(result).toEqual({ email: 'new@example.com' });
     });

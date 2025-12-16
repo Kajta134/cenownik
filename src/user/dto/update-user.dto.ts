@@ -14,4 +14,9 @@ export class UserUpdateDto {
   @ApiPropertyOptional()
   @Validate(FrequencyValidator)
   scraperFrequency?: number | null;
+
+  @IsOptional()
+  @IsString()
+  @ApiPropertyOptional()
+  discordId?: string | null;
 }

@@ -7,16 +7,19 @@ import { Role } from '../generated/prisma/enums.js';
 import { userToMetadata } from './dto/user-metadata.js';
 import { User } from 'src/generated/prisma/client.js';
 import { UserUpdateDto } from './dto/update-user.dto.js';
+import { DiscordService } from '../discord/discord.service.js';
 
 describe('UserService', () => {
   let service: UserService;
   let prisma: jest.Mocked<PrismaService>;
+  let discordService: jest.Mocked<DiscordService>;
 
   const mockUser = {
     email: 'test@example.com',
     name: 'Test User',
     password: 'hashedPassword',
     scraperFrequency: 60,
+    discordId: '1234567890',
     role: Role.USER,
     isActive: true,
   } as User;
@@ -30,7 +33,11 @@ describe('UserService', () => {
       },
     } as unknown as jest.Mocked<PrismaService>;
 
-    service = new UserService(prisma);
+    discordService = {
+      sendDiscordActivationLink: jest.fn(),
+    } as unknown as jest.Mocked<DiscordService>;
+
+    service = new UserService(prisma, discordService);
   });
 
   it('should be defined', () => {
@@ -78,15 +85,20 @@ describe('UserService', () => {
       const result = await service.updateUserData(mockUser.email, {
         name: 'New Name',
         scraperFrequency: 60,
+        discordId: mockUser.discordId,
       } as UserUpdateDto);
-      expect(result).toEqual(updatedUser);
+      expect(result).toEqual({
+        name: 'New Name',
+        scraperFrequency: 60,
+        discordId: mockUser.discordId,
+        discordActivationLink: undefined,
+      });
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { email: mockUser.email },
         data: {
           name: 'New Name',
           scraperFrequency: 60,
-          password: mockUser.password,
-          role: mockUser.role,
+          discordId: mockUser.discordId,
         },
       });
     });

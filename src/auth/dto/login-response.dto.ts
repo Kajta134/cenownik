@@ -8,4 +8,6 @@ export interface LoginResponseDto {
   name: string;
 
   role: Role;
+
+  discordActivationLink: string | null;
 }

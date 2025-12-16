@@ -5,11 +5,12 @@ import { RoleGuard } from '../auth/roles/role.guard.js';
 import { AuthModule } from '../auth/auth.module.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { UserController } from './user.controller.js';
+import { DiscordModule } from '../discord/discord.module.js';
 
 @Module({
   providers: [UserService, AuthService, RoleGuard],
   exports: [UserService, AuthModule],
-  imports: [PrismaModule, forwardRef(() => AuthModule)],
+  imports: [PrismaModule, forwardRef(() => AuthModule), DiscordModule],
   controllers: [UserController],
 })
 export class UserModule {}

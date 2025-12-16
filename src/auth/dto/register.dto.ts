@@ -1,4 +1,4 @@
-import { IsString, MinLength } from 'class-validator';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -15,4 +15,9 @@ export class RegisterDto {
   @ApiProperty()
   @MinLength(2)
   name: string;
+
+  @IsString()
+  @ApiProperty({ required: false })
+  @IsOptional()
+  discordId?: string;
 }

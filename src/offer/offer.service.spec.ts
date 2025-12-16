@@ -30,6 +30,7 @@ describe('OfferService', () => {
     email: 'user@example.com',
     password: 'password',
     scraperFrequency: 60,
+    discordId: '1234567890',
     role: Role.USER,
     isActive: true,
     createdAt: new Date(),

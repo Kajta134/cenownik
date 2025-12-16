@@ -3,6 +3,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { MailService } from '../mail/mail.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ScrapperService } from '../scrapers/scraper.service.js';
+import { DiscordService } from '../discord/discord.service.js';
 
 @Injectable()
 export class OfferAlertScheduler {
@@ -10,6 +11,7 @@ export class OfferAlertScheduler {
     private prisma: PrismaService,
     private mailService: MailService,
     private scraperService: ScrapperService,
+    private discordService: DiscordService,
   ) {
     this.timer = 0;
   }
@@ -32,6 +34,12 @@ export class OfferAlertScheduler {
         if (currentPrice === null) {
           await this.prisma.offer.delete({ where: { id: offer.id } });
           await this.mailService.sendOfferRemovedEmail(user.email, offer.link);
+          if (user.discordId) {
+            await this.discordService.sendOfferRemovedDiscordMessage(
+              user.discordId,
+              offer.link,
+            );
+          }
         } else if (currentPrice < offer.priceFreshold) {
           await this.prisma.priceHistory.create({
             data: {
@@ -45,6 +53,14 @@ export class OfferAlertScheduler {
             currentPrice,
             offer.priceFreshold,
           );
+          if (user.discordId) {
+            await this.discordService.sendOfferPriceAlertDiscordMessage(
+              user.discordId,
+              offer.link,
+              currentPrice,
+              offer.priceFreshold,
+            );
+          }
         } else {
           await this.prisma.priceHistory.create({
             data: {
