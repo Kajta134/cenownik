@@ -21,7 +21,7 @@ type MediaExpertProductState = {
   };
 };
 
-export async function scrapeMediaExpert(url: string): Promise<number> {
+export async function scrapeMediaExpert(url: string): Promise<number | null> {
   const browser = await chromium.launch({
     headless: true,
   });
@@ -31,14 +31,23 @@ export async function scrapeMediaExpert(url: string): Promise<number> {
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
   });
 
-  await page.goto(url, {
-    waitUntil: 'domcontentloaded',
-    timeout: 30000,
-  });
-
+  await page
+    .goto(url, {
+      waitUntil: 'domcontentloaded',
+      timeout: 30000,
+    })
+    .catch((e) => {
+      console.error('Błąd podczas ładowania strony:', e);
+      return null;
+    });
+  if (!page) {
+    console.warn('Strona nie została poprawnie załadowana.');
+    return null;
+  }
   const sparkId = await page.locator('#state').innerText({ timeout: 15000 });
   if (!sparkId) {
-    throw new Error('Nie znaleziono Spark ID na stronie produktu.');
+    console.warn('Nie znaleziono Spark ID na stronie produktu.');
+    return null;
   }
   await browser.close();
 
@@ -79,9 +88,7 @@ export async function scrapeMediaExpert(url: string): Promise<number> {
   if (!priceString) {
     throw new Error('Nie znaleziono ceny w danych JSON.');
   }
-  console.log('Price String:', priceString);
   const price = parseFloat(priceString);
-  console.log('Extracted Price:', price);
   if (isNaN(price)) {
     throw new Error('Nie udało się przekonwertować ceny na liczbę.');
   }

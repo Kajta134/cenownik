@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-export async function scrapeAmazon(url: string): Promise<number> {
+export async function scrapeAmazon(url: string): Promise<number | null> {
   const browser = await chromium.launch({ headless: true });
 
   const context = await browser.newContext({
@@ -11,14 +11,25 @@ export async function scrapeAmazon(url: string): Promise<number> {
 
   const page = await context.newPage();
 
-  await page.goto(url, {
-    waitUntil: 'networkidle',
-    timeout: 45000,
-  });
+  await page
+    .goto(url, {
+      waitUntil: 'networkidle',
+      timeout: 45000,
+    })
+    .catch((e) => {
+      console.error('Błąd podczas ładowania strony:', e);
+      return null;
+    });
 
   await page
     .waitForSelector('.a-price .a-offscreen', { timeout: 10000 })
-    .catch(() => {});
+    .catch(() => {
+      console.warn('Nie znaleziono selektora ceny na stronie Amazon.');
+      return null;
+    });
+  if (!page) {
+    return null;
+  }
 
   const selectors = [
     '.a-price .a-offscreen',
@@ -39,7 +50,7 @@ export async function scrapeAmazon(url: string): Promise<number> {
         break;
       }
     } catch (e: any) {
-      console.error(
+      console.warn(
         `Błąd podczas próby pobrania ceny z selektora ${selector}:`,
         e,
       );

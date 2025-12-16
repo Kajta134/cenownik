@@ -9,7 +9,7 @@ import { scrapeXkom } from './xkom.scraper.js';
 export class ScrapperService {
   constructor(private database: PrismaService) {}
 
-  async scrapePrice(link: string): Promise<number> {
+  async scrapePrice(link: string): Promise<number | null> {
     switch (true) {
       case link.includes('amazon'):
         return await scrapeAmazon(link);
@@ -20,7 +20,7 @@ export class ScrapperService {
       case link.includes('x-kom.pl'):
         return await scrapeXkom(link);
       default:
-        throw new Error('No scraper available for the provided link');
+        return null;
     }
   }
 }

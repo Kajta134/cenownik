@@ -1,6 +1,6 @@
 import { chromium } from 'playwright';
 
-export async function scrapeXkom(url: string): Promise<number> {
+export async function scrapeXkom(url: string): Promise<number | null> {
   const browser = await chromium.launch({ headless: true });
 
   const context = await browser.newContext({
@@ -11,16 +11,24 @@ export async function scrapeXkom(url: string): Promise<number> {
 
   const page = await context.newPage();
 
-  await page.goto(url, {
-    waitUntil: 'networkidle',
-    timeout: 45000,
-  });
+  await page
+    .goto(url, {
+      waitUntil: 'networkidle',
+      timeout: 45000,
+    })
+    .catch((e) => {
+      console.error('Błąd podczas ładowania strony:', e);
+      return null;
+    });
 
   await page
     .waitForSelector('meta[property="product:price:amount"]', {
       timeout: 10000,
     })
-    .catch(() => {});
+    .catch(() => {
+      console.warn('Nie znaleziono selektora ceny na stronie X-Kom.');
+      return null;
+    });
 
   const price = await page
     .locator('meta[property="product:price:amount"]')
