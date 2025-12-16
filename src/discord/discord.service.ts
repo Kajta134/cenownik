@@ -11,7 +11,9 @@ export class DiscordService {
   ) {}
 
   sendDiscordActivationLink(): string {
-    return 'https://discord.com/oauth2/authorize?client_id=1450490047831867402&permissions=67584&integration_type=0&scope=bot+applications.commands';
+    const LINK_TO_DISCORD_SERVER =
+      'https://discord.com/oauth2/authorize?client_id=1450490047831867402&permissions=67584&integration_type=0&scope=bot+applications.commands';
+    return LINK_TO_DISCORD_SERVER;
   }
 
   async sendMessage(
@@ -47,7 +49,6 @@ export class DiscordService {
     const result = await this.sendMessage(userId, message);
 
     if (!result.ok) {
-      // 👉 tu możesz zrobić fallback (kanał, mail, log, DB)
       this.logger.warn(
         `Offer price alert not delivered to ${userId}: ${result.reason}`,
       );

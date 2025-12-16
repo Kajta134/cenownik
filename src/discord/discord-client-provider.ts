@@ -8,7 +8,7 @@ export const DiscordClientProvider = {
     });
 
     await client.login(process.env.DISCORD_TOKEN);
-    console.log('🤖 Discord bot zalogowany');
+    console.log('Discord bot zalogowany');
 
     return client;
   },
