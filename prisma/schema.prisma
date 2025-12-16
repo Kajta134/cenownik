@@ -25,6 +25,11 @@ model User {
   isActive Boolean @default(false)
 }
 
+enum Role {
+  ADMIN
+  USER
+}
+
 model Offer {
   id          Int      @id @default(autoincrement())
   name       String
@@ -32,12 +37,16 @@ model Offer {
   priceFreshold Float
   userId     Int
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  priceHistories PriceHistory[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
-enum Role {
-  ADMIN
-  USER
+model PriceHistory{
+  id          Int @id @default(autoincrement())
+  price       Float
+  offerId      Int
+  offer       Offer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
 }

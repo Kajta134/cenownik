@@ -33,17 +33,29 @@ export class OfferAlertScheduler {
           await this.prisma.offer.delete({ where: { id: offer.id } });
           await this.mailService.sendOfferRemovedEmail(user.email, offer.link);
         } else if (currentPrice < offer.priceFreshold) {
+          await this.prisma.priceHistory.create({
+            data: {
+              price: currentPrice,
+              offerId: offer.id,
+            },
+          });
           await this.mailService.sendOfferPriceAlertEmail(
             user.email,
             offer.link,
             currentPrice,
             offer.priceFreshold,
           );
+        } else {
+          await this.prisma.priceHistory.create({
+            data: {
+              price: currentPrice,
+              offerId: offer.id,
+            },
+          });
         }
       }
     }
   }
-
   @Cron(CronExpression.EVERY_WEEK)
   resetTimer() {
     this.timer = 0;

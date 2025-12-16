@@ -3,7 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Offer, Role } from '../generated/prisma/client.js';
+import { Offer, PriceHistory, Role } from '../generated/prisma/client.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
@@ -79,7 +79,7 @@ export class OfferService {
     return result;
   }
 
-  async findByUserEmail(userEmail: string): Promise<OfferResponseDto[]> {
+  async findByUserEmail(userEmail: string) {
     const offers = await this.database.offer.findMany({
       where: {
         user: {
@@ -145,6 +145,9 @@ export class OfferService {
         link: offer.link,
         priceFreshold: offer.priceFreshold,
         currentPrice: currentPrise ?? 0,
+        offerHistories: (await this.database.priceHistory.findMany({
+          where: { offerId: offer.id },
+        })) as PriceHistory[],
       };
     });
   }

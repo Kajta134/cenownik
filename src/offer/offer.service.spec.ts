@@ -5,7 +5,7 @@ import { OfferService } from './offer.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
-import { Offer, Role, User } from '../generated/prisma/client.js';
+import { Offer, PriceHistory, Role, User } from '../generated/prisma/client.js';
 import { ScrapperService } from '../scrapers/scraper.service.js';
 import { OfferResponseDto } from './dto/offer-response.dto.js';
 
@@ -48,6 +48,7 @@ describe('OfferService', () => {
         update: jest.fn(),
         delete: jest.fn(),
       },
+      priceHistory: { findMany: jest.fn() },
     } as unknown as jest.Mocked<PrismaService>;
     scraperService = {
       scrapePrice: jest.fn(),
@@ -127,6 +128,8 @@ describe('OfferService', () => {
       } as Offer);
       prisma.user.findUnique.mockResolvedValue(sampleUser);
 
+      prisma.priceHistory.findMany.mockResolvedValue([] as PriceHistory[]);
+
       scraperService.scrapePrice.mockResolvedValue(mockCurrentPrice);
 
       const result = service.findOne(1, sampleUser.email, sampleUser.role);
@@ -137,6 +140,7 @@ describe('OfferService', () => {
         link: sampleOffer.link,
         priceFreshold: sampleOffer.priceFreshold,
         currentPrice: mockCurrentPrice,
+        offerHistories: [],
       } as OfferResponseDto);
       expect(prisma.offer.findUnique).toHaveBeenCalledWith({
         where: { id: 1 },

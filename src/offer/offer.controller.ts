@@ -68,7 +68,6 @@ export class OfferController {
   @ApiResponse({
     status: 200,
     description: 'The offer has been successfully retrieved.',
-    type: OfferResponseDto,
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Not Found' })
@@ -78,7 +77,7 @@ export class OfferController {
   async findOne(
     @Param('id') id: string,
     @Request() request: { user: UserMetadata },
-  ): Promise<OfferResponseDto> {
+  ) {
     return this.offerService.findOne(
       +id,
       request.user.email,
