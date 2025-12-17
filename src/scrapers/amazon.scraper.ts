@@ -1,75 +1,85 @@
 import { chromium } from 'playwright';
+import { PriceScraper } from './scraper.service.js';
 
-export async function scrapeAmazon(url: string): Promise<number | null> {
-  const browser = await chromium.launch({ headless: true });
-
-  const context = await browser.newContext({
-    userAgent:
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
-    locale: 'en-US',
-  });
-
-  const page = await context.newPage();
-
-  await page
-    .goto(url, {
-      waitUntil: 'networkidle',
-      timeout: 45000,
-    })
-    .catch((e) => {
-      console.error('Błąd podczas ładowania strony:', e);
-      return null;
-    });
-
-  await page
-    .waitForSelector('.a-price .a-offscreen', { timeout: 10000 })
-    .catch(() => {
-      console.warn('Nie znaleziono selektora ceny na stronie Amazon.');
-      return null;
-    });
-  if (!page) {
-    return null;
+export class AmazonScraper implements PriceScraper {
+  canHandle(url: string): boolean {
+    return url.includes('https://www.amazon');
   }
+  async scrape(url: string): Promise<number | null> {
+    const browser = await chromium.launch({ headless: true });
 
-  const selectors = [
-    '.a-price .a-offscreen',
-    '#priceblock_ourprice',
-    '#priceblock_dealprice',
-    '#price_inside_buybox',
-    '#corePriceDisplay_desktop_feature_div > div.a-section.a-spacing-none.aok-align-center.aok-relative > span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay > span:nth-child(2) > span.a-price-whole',
-    '#corePriceDisplay_desktop_feature_div > div.a-section.a-spacing-none.aok-align-center.aok-relative > span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay > span:nth-child(2) > span.a-price-whole',
-  ];
+    const context = await browser.newContext({
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36',
+      locale: 'en-US',
+    });
 
-  let priceText: string | null = null;
+    const page = await context.newPage();
 
-  for (const selector of selectors) {
-    try {
-      const element = await page.$(selector);
-      if (element) {
-        priceText = await element.innerText();
-        break;
-      }
-    } catch (e: any) {
-      console.warn(
-        `Błąd podczas próby pobrania ceny z selektora ${selector}:`,
-        e,
-      );
+    await page
+      .goto(url, {
+        waitUntil: 'networkidle',
+        timeout: 45000,
+      })
+      .catch(async (e) => {
+        console.error('Błąd podczas ładowania strony:', e);
+        await browser.close();
+        return null;
+      });
+
+    await page
+      .waitForSelector('.a-price .a-offscreen', { timeout: 10000 })
+      .catch(async () => {
+        console.warn('Nie znaleziono selektora ceny na stronie Amazon.');
+        await browser.close();
+        return null;
+      });
+    if (!page) {
+      console.warn('Strona nie została poprawnie załadowana.');
+      await browser.close();
+      return null;
     }
+
+    const selectors = [
+      '.a-price .a-offscreen',
+      '#priceblock_ourprice',
+      '#priceblock_dealprice',
+      '#price_inside_buybox',
+      '#corePriceDisplay_desktop_feature_div > div.a-section.a-spacing-none.aok-align-center.aok-relative > span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay > span:nth-child(2) > span.a-price-whole',
+      '#corePriceDisplay_desktop_feature_div > div.a-section.a-spacing-none.aok-align-center.aok-relative > span.a-price.aok-align-center.reinventPricePriceToPayMargin.priceToPay > span:nth-child(2) > span.a-price-whole',
+    ];
+
+    let priceText: string | null = null;
+
+    for (const selector of selectors) {
+      try {
+        const element = await page.$(selector);
+        if (element) {
+          priceText = await element.innerText();
+          break;
+        }
+      } catch (e: any) {
+        console.warn(
+          `Błąd podczas próby pobrania ceny z selektora ${selector}:`,
+          e,
+        );
+      }
+    }
+
+    await browser.close();
+
+    if (!priceText) {
+      throw new Error('Nie znaleziono ceny — Amazon mógł zmienić strukturę.');
+    }
+
+    const numeric = parseFloat(
+      priceText.replace(/[^\d.,]/g, '').replace(',', '.'),
+    );
+
+    if (isNaN(numeric)) {
+      throw new Error('Nie udało się przekonwertować ceny.');
+    }
+
+    return numeric;
   }
-
-  await browser.close();
-
-  if (!priceText) {
-    throw new Error('Nie znaleziono ceny — Amazon mógł zmienić strukturę.');
-  }
-
-  const numeric = parseFloat(
-    priceText.replace(/[^\d.,]/g, '').replace(',', '.'),
-  );
-
-  if (isNaN(numeric)) {
-    throw new Error('Nie udało się przekonwertować ceny.');
-  }
-
-  return numeric;
 }
