@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { MailService } from '../mail/mail.service.js';
 import { PrismaService } from '../prisma/prisma.service.js';
-import { ScrapperService } from '../scrapers/scraper.service.js';
+import { PriceScrapingService } from '../price/price-scraping.service.js';
 import { DiscordService } from '../discord/discord.service.js';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class OfferAlertScheduler {
   constructor(
     private prisma: PrismaService,
     private mailService: MailService,
-    private scraperService: ScrapperService,
+    private scraperService: PriceScrapingService,
     private discordService: DiscordService,
   ) {
     this.timer = 0;

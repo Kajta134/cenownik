@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { PriceScraper } from './scraper.service.js';
+import { PriceScraper } from '../price-scraping.service.js';
 
 export class XkomScraper implements PriceScraper {
   canHandle(url: string): boolean {

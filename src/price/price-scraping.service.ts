@@ -8,7 +8,7 @@ export interface PriceScraper {
 }
 
 @Injectable()
-export class ScrapperService {
+export class PriceScrapingService {
   constructor(
     @Inject(PRICE_SCRAPER) private readonly scrapers: PriceScraper[],
   ) {}

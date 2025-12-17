@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 import { chromium } from 'playwright';
-import { PriceScraper } from './scraper.service.js';
+import { PriceScraper } from '../price-scraping.service.js';
 
 type MediaExpertProductState = {
   ['Product:ProductShowService.state']?: {

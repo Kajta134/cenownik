@@ -2,17 +2,17 @@ import { Module } from '@nestjs/common';
 import {
   PRICE_SCRAPER,
   PriceScraper,
-  ScrapperService,
-} from './scraper.service.js';
+  PriceScrapingService,
+} from './price-scraping.service.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
-import { XkomScraper } from './xkom.scraper.js';
-import { OlxScraper } from './olx.scraper.js';
-import { AmazonScraper } from './amazon.scraper.js';
-import { MediaExpertScraper } from './media-expert.scraper.js';
+import { XkomScraper } from './scrapers/xkom.scraper.js';
+import { OlxScraper } from './scrapers/olx.scraper.js';
+import { AmazonScraper } from './scrapers/amazon.scraper.js';
+import { MediaExpertScraper } from './scrapers/media-expert.scraper.js';
 
 @Module({
   providers: [
-    ScrapperService,
+    PriceScrapingService,
     AmazonScraper,
     OlxScraper,
     MediaExpertScraper,
@@ -34,6 +34,6 @@ import { MediaExpertScraper } from './media-expert.scraper.js';
     },
   ],
   imports: [PrismaModule],
-  exports: [ScrapperService],
+  exports: [PriceScrapingService],
 })
 export class ScraperModule {}

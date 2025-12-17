@@ -3,7 +3,7 @@ import { PrismaModule } from '../prisma/prisma.module.js';
 import { ScheduleModule } from '@nestjs/schedule';
 import { OfferAlertScheduler } from './offer-alert.scheduler.js';
 import { MailModule } from '../mail/mail.module.js';
-import { ScraperModule } from '../scrapers/scraper.module.js';
+import { ScraperModule } from '../price/scraper.module.js';
 import { DiscordModule } from '../discord/discord.module.js';
 
 @Module({

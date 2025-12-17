@@ -6,13 +6,13 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { Offer, PriceHistory, Role, User } from '../generated/prisma/client.js';
-import { ScrapperService } from '../scrapers/scraper.service.js';
+import { PriceScrapingService } from '../price/price-scraping.service.js';
 import { OfferResponseDto } from './dto/offer-response.dto.js';
 
 describe('OfferService', () => {
   let service: OfferService;
   let prisma: jest.Mocked<PrismaService>;
-  let scraperService: jest.Mocked<ScrapperService>;
+  let scraperService: jest.Mocked<PriceScrapingService>;
 
   const sampleOffer = {
     id: 1,
@@ -53,7 +53,7 @@ describe('OfferService', () => {
     } as unknown as jest.Mocked<PrismaService>;
     scraperService = {
       scrapePrice: jest.fn(),
-    } as unknown as jest.Mocked<ScrapperService>;
+    } as unknown as jest.Mocked<PriceScrapingService>;
     service = new OfferService(prisma, scraperService);
   });
 

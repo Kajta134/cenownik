@@ -8,14 +8,14 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { OfferResponseDto } from './dto/offer-response.dto.js';
-import { ScrapperService } from '../scrapers/scraper.service.js';
+import { PriceScrapingService } from '../price/price-scraping.service.js';
 import { BadAdressException } from '../exceptions/bad-adress.exception.js';
 
 @Injectable()
 export class OfferService {
   constructor(
     private database: PrismaService,
-    private scraperService: ScrapperService,
+    private scraperService: PriceScrapingService,
   ) {}
   async create(
     createOfferDto: CreateOfferDto,
