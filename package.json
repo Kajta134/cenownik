@@ -19,7 +19,7 @@
     "test:cov": "cross-env DATABASE_URL=\"postgresql://postgres:haslomaslo@localhost:5432/cenownik-test-db\"  cross-env NODE_OPTIONS=--experimental-vm-modules jest --coverage",
     "test:debug": "cross-env DATABASE_URL=\"postgresql://postgres:haslomaslo@localhost:5432/cenownik-test-db\" cross-env NODE_OPTIONS=--experimental-vm-modules node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:prepare": "cross-env DATABASE_URL=\"postgresql://postgres:haslomaslo@localhost:5432/cenownik-test-db\" npx prisma db push",
-    "test:e2e": "cross-env DATABASE_URL=\"postgresql://postgres:haslomaslo@localhost:5432/cenownik-test-db\" JWT_SECRET=test-secret cross-env NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json"
+    "test:e2e": "cross-env DATABASE_URL=\"postgresql://postgres:haslomaslo@localhost:5432/cenownik-test-db\" JWT_SECRET=test-secret cross-env NODE_OPTIONS=--experimental-vm-modules jest --config ./test/jest-e2e.json --detectOpenHandles --runInBand --verbose"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.9",

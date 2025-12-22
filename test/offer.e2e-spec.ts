@@ -8,6 +8,7 @@ import { LoginDto } from '../src/auth/dto/login.dto.js';
 import { App } from 'supertest/types.js';
 import { CreateOfferDto } from '../src/offer/dto/create-offer.dto.js';
 import { PRICE_SCRAPER } from '../src/price/price-scraping.service.js';
+import { PrismaService } from '../src/prisma/prisma.service.js';
 
 describe('offer e2e tests', () => {
   let app: INestApplication;
@@ -22,7 +23,7 @@ describe('offer e2e tests', () => {
       .useValue([
         {
           canHandle: () => true,
-          scrape: async () => returnNewPrice,
+          scrape: () => returnNewPrice,
         },
       ])
 
@@ -36,6 +37,8 @@ describe('offer e2e tests', () => {
   });
 
   afterAll(async () => {
+    const prisma = app.get(PrismaService);
+    await prisma.$disconnect();
     await app.close();
   });
 

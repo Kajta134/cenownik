@@ -7,6 +7,7 @@ import { LoginResponseDto } from 'src/auth/dto/login-response.dto.js';
 import { User } from 'src/generated/prisma/client.js';
 import { LoginDto } from 'src/auth/dto/login.dto.js';
 import { App } from 'supertest/types.js';
+import { PrismaService } from '../src/prisma/prisma.service.js';
 
 describe('User e2e tests', () => {
   let app: INestApplication;
@@ -24,6 +25,8 @@ describe('User e2e tests', () => {
   });
 
   afterAll(async () => {
+    const prisma = app.get(PrismaService);
+    await prisma.$disconnect();
     await app.close();
   });
 
