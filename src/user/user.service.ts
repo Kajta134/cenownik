@@ -14,6 +14,19 @@ export class UserService {
     private readonly discordService: DiscordService,
   ) {}
 
+  async getAllUsers(): Promise<User[]> {
+    const users = await this.databaseService.user.findMany();
+    return users;
+  }
+
+  async getUserById(id: number): Promise<User> {
+    const user = await this.databaseService.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return user;
+  }
+
   async findOne(email: string): Promise<User | null> {
     return this.databaseService.user.findUnique({ where: { email } });
   }
