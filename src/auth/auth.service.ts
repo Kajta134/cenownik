@@ -12,9 +12,11 @@ import { UserMetadata } from '../user/dto/user-metadata.js';
 import { UserService } from '../user/user.service.js';
 import { LoginResponseDto } from './dto/login-response.dto.js';
 import { DiscordService } from '../discord/discord.service.js';
+import bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  saltRounds = 10;
   constructor(
     @Inject(forwardRef(() => UserService))
     private readonly usersService: UserService,
@@ -37,7 +39,11 @@ export class AuthService {
 
   async signIn(email: string, password: string): Promise<LoginResponseDto> {
     const user = await this.usersService.findOne(email);
-    if (user == null || !(password === user.password)) {
+    if (user == null) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }
     if (!user.isActive) {
@@ -67,9 +73,14 @@ export class AuthService {
       throw new ConflictException('User with this email already exists');
     }
 
+    const hashedPassword = (await bcrypt.hash(
+      password,
+      this.saltRounds,
+    )) as string;
+
     const newUser = await this.usersService.createUser(
       email,
-      password,
+      hashedPassword,
       name,
       discordId,
     );

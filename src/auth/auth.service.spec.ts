@@ -7,7 +7,9 @@ import { Role } from '../generated/prisma/enums.js';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { User } from '../generated/prisma/client.js';
 import { DiscordService } from 'src/discord/discord.service.js';
+import bcrypt from 'bcrypt';
 
+const hashedPassword = (await bcrypt.hash('secret', 10)) as string;
 describe('AuthService', () => {
   let authService: AuthService;
   let userService: jest.Mocked<UserService>;
@@ -61,7 +63,7 @@ describe('AuthService', () => {
   describe('signIn', () => {
     const user = {
       email: 'user@example.com',
-      password: 'secret',
+      password: hashedPassword,
       role: Role.USER,
       name: 'User',
       isActive: true,
@@ -126,7 +128,7 @@ describe('AuthService', () => {
 
       const result = await authService.register(
         'new@example.com',
-        'pass',
+        'secret',
         'Name',
         'discord-id',
       );
@@ -134,7 +136,7 @@ describe('AuthService', () => {
       expect(userService.findOne).toHaveBeenCalledWith('new@example.com');
       expect(userService.createUser).toHaveBeenCalledWith(
         'new@example.com',
-        'pass',
+        expect.any(String),
         'Name',
         'discord-id',
       );

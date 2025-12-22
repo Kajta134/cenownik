@@ -1,13 +1,18 @@
 import { User } from 'src/generated/prisma/client.js';
 import { PrismaService } from '../src/prisma/prisma.service.js';
+import { hash } from 'bcrypt';
 
 const prisma = new PrismaService();
+
 export class Seeder {
+  rowAdminpassword = 'adminpassword';
+  rowUserpassword = 'password';
+
   adminUser = {
     id: 2,
     email: 'admin@example.com',
     name: 'Admin User',
-    password: 'adminpassword',
+    password: '',
     role: 'ADMIN',
     isActive: true,
   } as User;
@@ -15,7 +20,7 @@ export class Seeder {
     id: 1,
     email: 'user@example.com',
     name: 'Test User',
-    password: 'password',
+    password: '',
     role: 'USER',
     isActive: true,
   } as User;
@@ -23,6 +28,11 @@ export class Seeder {
   async seedTestDatabase() {
     await prisma.user.deleteMany();
     await prisma.offer.deleteMany();
+    const adminpassword = await hash(this.rowAdminpassword, 10);
+    const userpassword = await hash(this.rowUserpassword, 10);
+
+    this.adminUser.password = adminpassword;
+    this.regularUser.password = userpassword;
 
     await prisma.user.createMany({
       data: [this.regularUser, this.adminUser],

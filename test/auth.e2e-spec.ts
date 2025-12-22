@@ -40,7 +40,7 @@ describe('auth e2e tests', () => {
       .post('/auth/login')
       .send({
         email: seeder.regularUser.email,
-        password: seeder.regularUser.password,
+        password: seeder.rowUserpassword,
       } as LoginDto)
       .expect(200)) as { body: LoginResponseDto };
     expect(response.body.token).toBeDefined();

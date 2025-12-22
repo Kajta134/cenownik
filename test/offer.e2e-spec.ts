@@ -51,7 +51,7 @@ describe('offer e2e tests', () => {
       .post('/auth/login')
       .send({
         email: seeder.regularUser.email,
-        password: seeder.regularUser.password,
+        password: seeder.rowUserpassword,
       } as LoginDto)
       .expect(200)) as { body: LoginResponseDto };
     const userToken = loginResponse.body.token;
@@ -78,7 +78,7 @@ describe('offer e2e tests', () => {
       .post('/auth/login')
       .send({
         email: seeder.regularUser.email,
-        password: seeder.regularUser.password,
+        password: seeder.rowUserpassword,
       } as LoginDto)
       .expect(200)) as { body: LoginResponseDto };
     const userToken = loginResponse.body.token;
@@ -94,7 +94,7 @@ describe('offer e2e tests', () => {
       .post('/auth/login')
       .send({
         email: seeder.adminUser.email,
-        password: seeder.adminUser.password,
+        password: seeder.rowAdminpassword,
       } as LoginDto)
       .expect(200)) as { body: LoginResponseDto };
     const adminToken = loginResponse.body.token;
@@ -115,7 +115,7 @@ describe('offer e2e tests', () => {
       .post('/auth/login')
       .send({
         email: seeder.regularUser.email,
-        password: seeder.regularUser.password,
+        password: seeder.rowUserpassword,
       } as LoginDto)
       .expect(200)) as { body: LoginResponseDto };
     const userToken = loginResponse.body.token;
@@ -137,7 +137,7 @@ describe('offer e2e tests', () => {
       .post('/auth/login')
       .send({
         email: seeder.regularUser.email,
-        password: seeder.regularUser.password,
+        password: seeder.rowUserpassword,
       } as LoginDto)
       .expect(200)) as { body: LoginResponseDto };
     const userToken = loginResponse.body.token;
@@ -151,7 +151,7 @@ describe('offer e2e tests', () => {
       .post('/auth/login')
       .send({
         email: seeder.regularUser.email,
-        password: seeder.regularUser.password,
+        password: seeder.rowUserpassword,
       } as LoginDto)
       .expect(200)) as { body: LoginResponseDto };
     const userToken = loginResponse.body.token;
@@ -174,7 +174,7 @@ describe('offer e2e tests', () => {
       .post('/auth/login')
       .send({
         email: seeder.regularUser.email,
-        password: seeder.regularUser.password,
+        password: seeder.rowUserpassword,
       } as LoginDto)
       .expect(200)) as { body: LoginResponseDto };
     const userToken = loginResponse.body.token;
