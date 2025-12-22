@@ -31,12 +31,14 @@ export class Seeder {
     await prisma.offer.createMany({
       data: [
         {
+          id: 1,
           name: 'Test Offer 1',
           priceFreshold: 100,
           userId: 1,
           link: 'http://example.com/offer1',
         },
         {
+          id: 2,
           name: 'Test Offer 2',
           priceFreshold: 200,
           userId: 1,
