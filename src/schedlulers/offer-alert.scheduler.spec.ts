@@ -93,7 +93,7 @@ describe('OfferAlertScheduler', () => {
         isActive: true,
       },
     ];
-    prisma.user.findMany = jest.fn().mockResolvedValue(mockUsers);
+    prisma.user.findMany.mockResolvedValue(mockUsers);
     prisma.priceHistory.create.mockResolvedValue({} as PriceHistory);
     scraperService.scrapePrice.mockResolvedValue(90);
     await scheduler.handleOfferAlerts();
