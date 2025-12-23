@@ -59,6 +59,7 @@
     "@types/jest": "^30.0.0",
     "@types/module-alias": "^2.0.4",
     "@types/node": "^22.19.3",
+    "@types/nodemailer": "^7.0.4",
     "@types/supertest": "^6.0.2",
     "cross-env": "^10.1.0",
     "eslint": "^9.18.0",
