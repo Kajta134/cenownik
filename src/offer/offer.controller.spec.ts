@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { OfferController } from './offer.controller.js';
@@ -84,7 +83,8 @@ describe('OfferController', () => {
       dto,
     );
 
-    expect(service.create).toHaveBeenCalledWith(dto, mockUser.email);
+    const createSpy = jest.spyOn(service, 'create');
+    expect(createSpy).toHaveBeenCalledWith(dto, mockUser.email);
     expect(result).toEqual({
       id: 1,
       name: dto.name,
@@ -117,7 +117,9 @@ describe('OfferController', () => {
     const result = await controller.findAll({
       user: mockUser,
     });
-    expect(service.findAll).toHaveBeenCalledTimes(1);
+
+    const findAllSpy = jest.spyOn(service, 'findAll');
+    expect(findAllSpy).toHaveBeenCalledTimes(1);
     expect(result).toEqual([
       {
         id: mockOffer.id,
@@ -142,11 +144,8 @@ describe('OfferController', () => {
       user: mockUser,
     });
 
-    expect(service.findOne).toHaveBeenCalledWith(
-      1,
-      mockUser.email,
-      mockUser.role,
-    );
+    const findOneSpy = jest.spyOn(service, 'findOne');
+    expect(findOneSpy).toHaveBeenCalledWith(1, mockUser.email, mockUser.role);
     expect(result).toEqual({
       id: mockOffer.id,
       name: mockOffer.name,
@@ -164,7 +163,8 @@ describe('OfferController', () => {
       user: mockUser,
     });
 
-    expect(service.update).toHaveBeenCalledWith(
+    const updateSpy = jest.spyOn(service, 'update');
+    expect(updateSpy).toHaveBeenCalledWith(
       1,
       dto,
       mockUser.email,
@@ -179,12 +179,8 @@ describe('OfferController', () => {
     const result = await controller.remove('1', {
       user: mockUser,
     });
-
-    expect(service.remove).toHaveBeenCalledWith(
-      1,
-      mockUser.email,
-      mockUser.role,
-    );
+    const removeSpy = jest.spyOn(service, 'remove');
+    expect(removeSpy).toHaveBeenCalledWith(1, mockUser.email, mockUser.role);
     expect(result).toEqual(mockOffer);
   });
 });

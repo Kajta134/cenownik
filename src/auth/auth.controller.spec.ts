@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { jest } from '@jest/globals';
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus } from '@nestjs/common';
@@ -41,7 +40,8 @@ describe('AuthController', () => {
 
       const result = await controller.signIn(dto);
 
-      expect(authService.signIn).toHaveBeenCalledWith(dto.email, dto.password);
+      const signInSpy = jest.spyOn(authService, 'signIn');
+      expect(signInSpy).toHaveBeenCalledWith(dto.email, dto.password);
       expect(result).toEqual(loginResponse);
     });
   });
@@ -58,7 +58,8 @@ describe('AuthController', () => {
 
       const result = await controller.register(dto);
 
-      expect(authService.register).toHaveBeenCalledWith(
+      const registerSpy = jest.spyOn(authService, 'register');
+      expect(registerSpy).toHaveBeenCalledWith(
         dto.email,
         dto.password,
         dto.name,

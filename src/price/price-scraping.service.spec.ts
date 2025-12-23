@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { jest } from '@jest/globals';
 import { Test } from '@nestjs/testing';
 import {
@@ -46,8 +45,10 @@ describe('PriceScrapingService', () => {
     const price = await service.scrapePrice('https://amazon.com/item');
 
     expect(price).toBe(100);
-    expect(amazonMock.scrape).toHaveBeenCalled();
-    expect(olxMock.scrape).not.toHaveBeenCalled();
+    const amazonScrapeSpy = jest.spyOn(amazonMock, 'scrape');
+    expect(amazonScrapeSpy).toHaveBeenCalled();
+    const olxScrapeSpy = jest.spyOn(olxMock, 'scrape');
+    expect(olxScrapeSpy).not.toHaveBeenCalled();
   });
 
   it('returns null when no source matches', async () => {

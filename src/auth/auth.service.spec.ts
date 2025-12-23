@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { jest } from '@jest/globals';
 import { AuthService } from './auth.service.js';
 import { UserService } from 'src/user/user.service.js';
@@ -9,7 +8,7 @@ import { User } from '../generated/prisma/client.js';
 import { DiscordService } from 'src/discord/discord.service.js';
 import bcrypt from 'bcrypt';
 
-const hashedPassword = (await bcrypt.hash('secret', 10)) as string;
+const hashedPassword = await bcrypt.hash('secret', 10);
 describe('AuthService', () => {
   let authService: AuthService;
   let userService: jest.Mocked<UserService>;
@@ -45,7 +44,8 @@ describe('AuthService', () => {
 
       const result = authService.validateToken('valid-token');
 
-      expect(jwtService.verify).toHaveBeenCalledWith('valid-token');
+      const verifySpy = jest.spyOn(jwtService, 'verify');
+      expect(verifySpy).toHaveBeenCalledWith('valid-token');
       expect(result).toEqual(metadata);
     });
 
@@ -75,8 +75,10 @@ describe('AuthService', () => {
 
       const result = await authService.signIn('user@example.com', 'secret');
 
-      expect(userService.findOne).toHaveBeenCalledWith('user@example.com');
-      expect(jwtService.sign).toHaveBeenCalledWith({
+      const findOneSpy = jest.spyOn(userService, 'findOne');
+      expect(findOneSpy).toHaveBeenCalledWith('user@example.com');
+      const signSpy = jest.spyOn(jwtService, 'sign');
+      expect(signSpy).toHaveBeenCalledWith({
         email: user.email,
         role: user.role,
       });
@@ -133,8 +135,10 @@ describe('AuthService', () => {
         'discord-id',
       );
 
-      expect(userService.findOne).toHaveBeenCalledWith('new@example.com');
-      expect(userService.createUser).toHaveBeenCalledWith(
+      const findOneSpy = jest.spyOn(userService, 'findOne');
+      expect(findOneSpy).toHaveBeenCalledWith('new@example.com');
+      const createUserSpy = jest.spyOn(userService, 'createUser');
+      expect(createUserSpy).toHaveBeenCalledWith(
         'new@example.com',
         expect.any(String),
         'Name',

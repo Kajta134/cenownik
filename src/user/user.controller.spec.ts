@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { jest } from '@jest/globals';
 import { UnauthorizedException } from '@nestjs/common';
 import { UserController } from './user.controller.js';
@@ -30,10 +29,10 @@ describe('UserController', () => {
     const result = await controller.updateUserData('user@example.com', req, {
       name: 'New Name',
     } as UserUpdateResponseDto);
-    expect(userService.updateUserData as jest.Mock).toHaveBeenCalledWith(
-      'user@example.com',
-      { name: 'New Name' } as UserUpdateResponseDto,
-    );
+    const updateUserDataSpy = jest.spyOn(userService, 'updateUserData');
+    expect(updateUserDataSpy).toHaveBeenCalledWith('user@example.com', {
+      name: 'New Name',
+    } as UserUpdateResponseDto);
     expect(result).toEqual({});
   });
 
@@ -45,10 +44,10 @@ describe('UserController', () => {
     const result = await controller.updateUserData('user@example.com', req, {
       name: 'Another Name',
     } as UserUpdateResponseDto);
-    expect(userService.updateUserData as jest.Mock).toHaveBeenCalledWith(
-      'user@example.com',
-      { name: 'Another Name' } as UserUpdateResponseDto,
-    );
+    const updateUserDataSpy = jest.spyOn(userService, 'updateUserData');
+    expect(updateUserDataSpy).toHaveBeenCalledWith('user@example.com', {
+      name: 'Another Name',
+    } as UserUpdateResponseDto);
     expect(result).toEqual({ updated: true });
   });
 
@@ -59,13 +58,15 @@ describe('UserController', () => {
         name: 'Bad Attempt',
       } as UserUpdateResponseDto),
     ).rejects.toBeInstanceOf(UnauthorizedException);
-    expect(userService.updateUserData as jest.Mock).not.toHaveBeenCalled();
+    const updateUserDataSpy = jest.spyOn(userService, 'updateUserData');
+    expect(updateUserDataSpy).not.toHaveBeenCalled();
   });
 
   it('calls userService.getAllUsers', async () => {
     userService.getAllUsers.mockResolvedValue([]);
     const result = await controller.getAllUsers();
-    expect(userService.getAllUsers as jest.Mock).toHaveBeenCalled();
+    const getAllUsersSpy = jest.spyOn(userService, 'getAllUsers');
+    expect(getAllUsersSpy).toHaveBeenCalled();
     expect(result).toEqual([]);
   });
 
@@ -74,7 +75,8 @@ describe('UserController', () => {
     userService.getUserById.mockResolvedValue(mockUser as User);
     const req = { user: { email: 'example@example.com', role: Role.USER } };
     const result = await controller.getUserById('1', req);
-    expect(userService.getUserById as jest.Mock).toHaveBeenCalledWith(1);
+    const getUserByIdSpy = jest.spyOn(userService, 'getUserById');
+    expect(getUserByIdSpy).toHaveBeenCalledWith(1);
     expect(result).toEqual(mockUser);
   });
   it('allows ADMIN to access other user data', async () => {
@@ -82,7 +84,8 @@ describe('UserController', () => {
     userService.getUserById.mockResolvedValue(mockUser as User);
     const req = { user: { email: 'admin@example.com', role: Role.ADMIN } };
     const result = await controller.getUserById('2', req);
-    expect(userService.getUserById as jest.Mock).toHaveBeenCalledWith(2);
+    const getUserByIdSpy = jest.spyOn(userService, 'getUserById');
+    expect(getUserByIdSpy).toHaveBeenCalledWith(2);
     expect(result).toEqual(mockUser);
   });
 
@@ -93,6 +96,7 @@ describe('UserController', () => {
     await expect(controller.getUserById('3', req)).rejects.toBeInstanceOf(
       UnauthorizedException,
     );
-    expect(userService.getUserById as jest.Mock).toHaveBeenCalledWith(3);
+    const getUserByIdSpy = jest.spyOn(userService, 'getUserById');
+    expect(getUserByIdSpy).toHaveBeenCalledWith(3);
   });
 });

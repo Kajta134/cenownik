@@ -97,15 +97,22 @@ describe('OfferAlertScheduler', () => {
     prisma.priceHistory.create.mockResolvedValue({} as PriceHistory);
     scraperService.scrapePrice.mockResolvedValue(90);
     await scheduler.handleOfferAlerts();
-    expect(mailService.sendOfferPriceAlertEmail).toHaveBeenCalledWith(
+
+    const sendOfferPriceAlertEmailSpy = jest.spyOn(
+      mailService,
+      'sendOfferPriceAlertEmail',
+    );
+    expect(sendOfferPriceAlertEmailSpy).toHaveBeenCalledWith(
       'user@example.com',
       'http://example.com/1',
       90,
       100,
     );
-    expect(
-      discordService.sendOfferPriceAlertDiscordMessage,
-    ).toHaveBeenCalledWith(
+    const sendOfferPriceAlertDiscordMessageSpy = jest.spyOn(
+      discordService,
+      'sendOfferPriceAlertDiscordMessage',
+    );
+    expect(sendOfferPriceAlertDiscordMessageSpy).toHaveBeenCalledWith(
       mockUsers[0].discordId,
       'http://example.com/1',
       90,

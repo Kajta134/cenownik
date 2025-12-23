@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { jest } from '@jest/globals';
 import { NotFoundException } from '@nestjs/common';
 import { OfferService } from './offer.service.js';
@@ -74,11 +73,14 @@ describe('OfferService', () => {
       const result = await service.create(dto, sampleUser.email);
 
       expect(result).toEqual(dto);
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      const findUserSpy = jest.spyOn(prisma.user, 'findUnique');
+      expect(findUserSpy).toHaveBeenCalledWith({
         where: { email: sampleUser.email },
       });
-      expect(prisma.offer.create).toHaveBeenCalled();
-      expect(scraperService.scrapePrice).toHaveBeenCalledWith(dto.link);
+      const createSpy = jest.spyOn(prisma.offer, 'create');
+      expect(createSpy).toHaveBeenCalled();
+      const scrapeSpy = jest.spyOn(scraperService, 'scrapePrice');
+      expect(scrapeSpy).toHaveBeenCalledWith(dto.link);
     });
 
     it('throws NotFound when user does not exist', async () => {
@@ -112,7 +114,8 @@ describe('OfferService', () => {
       const result = service.findAll();
 
       await expect(result).resolves.toEqual([sampleOfferResponse]);
-      expect(prisma.offer.findMany).toHaveBeenCalled();
+      const findManySpy = jest.spyOn(prisma.offer, 'findMany');
+      expect(findManySpy).toHaveBeenCalled();
     });
   });
 
@@ -143,7 +146,8 @@ describe('OfferService', () => {
         currentPrice: mockCurrentPrice,
         offerHistories: [],
       } as OfferResponseDto);
-      expect(prisma.offer.findUnique).toHaveBeenCalledWith({
+      const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique');
+      expect(findUniqueSpy).toHaveBeenCalledWith({
         where: { id: 1 },
       });
     });
@@ -171,7 +175,8 @@ describe('OfferService', () => {
       const result = service.update(1, dto, sampleUser.email, sampleUser.role);
 
       await expect(result).resolves.toEqual(sampleOffer);
-      expect(prisma.offer.update).toHaveBeenCalledWith({
+      const updateSpy = jest.spyOn(prisma.offer, 'update');
+      expect(updateSpy).toHaveBeenCalledWith({
         where: { id: 1 },
         data: {
           name: dto.name,
@@ -205,7 +210,8 @@ describe('OfferService', () => {
       const result = service.remove(1, sampleUser.email, sampleUser.role);
 
       await expect(result).resolves.toEqual(sampleOffer);
-      expect(prisma.offer.delete).toHaveBeenCalledWith({ where: { id: 1 } });
+      const deleteSpy = jest.spyOn(prisma.offer, 'delete');
+      expect(deleteSpy).toHaveBeenCalledWith({ where: { id: 1 } });
     });
 
     it('throws NotFound when delete fails', async () => {

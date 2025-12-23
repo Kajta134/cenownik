@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { jest } from '@jest/globals';
 import { NotFoundException } from '@nestjs/common';
 import { UserService } from './user.service.js';
@@ -49,7 +48,8 @@ describe('UserService', () => {
       prisma.user.findUnique.mockResolvedValue(mockUser);
       const result = await service.findOne(mockUser.email);
       expect(result).toEqual(mockUser);
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+      const findUniqueSpy = jest.spyOn(prisma.user, 'findUnique');
+      expect(findUniqueSpy).toHaveBeenCalledWith({
         where: { email: mockUser.email },
       });
     });
@@ -93,7 +93,8 @@ describe('UserService', () => {
         discordId: mockUser.discordId,
         discordActivationLink: undefined,
       });
-      expect(prisma.user.update).toHaveBeenCalledWith({
+      const updateSpy = jest.spyOn(prisma.user, 'update');
+      expect(updateSpy).toHaveBeenCalledWith({
         where: { email: mockUser.email },
         data: {
           name: 'New Name',
@@ -140,7 +141,8 @@ describe('UserService', () => {
       );
 
       expect(result).toEqual(mockUser);
-      expect(prisma.user.create).toHaveBeenCalledWith({
+      const createSpy = jest.spyOn(prisma.user, 'create');
+      expect(createSpy).toHaveBeenCalledWith({
         data: {
           email: mockUser.email,
           password: mockUser.password,
@@ -162,7 +164,8 @@ describe('UserService', () => {
 
       await service.activateUser(mockUser.email);
 
-      expect(prisma.user.update).toHaveBeenCalledWith({
+      const updateSpy = jest.spyOn(prisma.user, 'update');
+      expect(updateSpy).toHaveBeenCalledWith({
         where: { email: mockUser.email },
         data: { isActive: true },
       });
@@ -173,7 +176,8 @@ describe('UserService', () => {
 
       await service.activateUser(mockUser.email);
 
-      expect(prisma.user.update).not.toHaveBeenCalled();
+      const updateSpy = jest.spyOn(prisma.user, 'update');
+      expect(updateSpy).not.toHaveBeenCalled();
     });
 
     it('should throw NotFoundException if user not found', async () => {
