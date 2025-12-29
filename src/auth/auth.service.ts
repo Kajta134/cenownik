@@ -54,6 +54,7 @@ export class AuthService {
       : this.discordService.sendDiscordActivationLink();
 
     return {
+      id: user.id,
       token: this.generateToken(user.email, user.role),
       email: user.email,
       name: user.name,

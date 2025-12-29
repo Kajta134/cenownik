@@ -1,6 +1,8 @@
 import { Role } from '../../generated/prisma/client.js';
 
 export interface LoginResponseDto {
+  id: number;
+
   token: string;
 
   email: string;
