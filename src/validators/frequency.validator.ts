@@ -6,11 +6,11 @@ export class FrequencyValidator {
     const frequencyNumber = Number(frequency);
     return (
       Number.isInteger(frequencyNumber) &&
-      frequencyNumber > 0 &&
+      frequencyNumber >= 10 &&
       frequencyNumber <= 60 * 24 * 7 // max one week
     );
   }
   defaultMessage(): string {
-    return 'Frequency must be a positive integer between 1 and 10080 (one week in minutes).';
+    return 'Frequency must be a positive integer between 10 and 10080 (one week in minutes).';
   }
 }
