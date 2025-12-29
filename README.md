@@ -50,6 +50,7 @@ A RESTful API built with **NestJS** that allows users to receive notifications w
 - [TypeScript](https://www.typescriptlang.org/)
 - [Prisma ORM](https://www.prisma.io/)
 - [Swagger](https://swagger.io/)
+- [Playwright](https://playwright.dev/)
 
 ---
 
